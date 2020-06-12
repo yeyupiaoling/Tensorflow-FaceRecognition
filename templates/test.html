@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人脸识别</title>
+</head>
+<body>
+<form action="http://192.168.89.175:5000/register" enctype="multipart/form-data" method="post">
+    注册人脸：<input type="file" required accept="image/jpeg" name="image"><br>
+    注册名称：<input type="text" name="name"><br>
+
+    <input type="submit" value="上传">
+</form>
+
+<br/><br/><br/>
+<form action="http://192.168.89.175:5000/recognition" enctype="multipart/form-data" method="post">
+    预测人脸：<input type="file" required accept="image/jpeg" name="image"><br>
+    <input type="submit" value="上传">
+</form>
+</body>
+</html>
