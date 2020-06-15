@@ -1,4 +1,4 @@
-import configparser
+import config
 import time
 import cv2
 import numpy as np
@@ -12,22 +12,18 @@ app = Flask(__name__)
 # 允许跨越访问
 CORS(app)
 
-# 读取配置文件
-conf = configparser.ConfigParser()
-conf.read("config/main.cfg")
 # 加载人脸检测模型
-VERIFICATION_THRESHOLD = float(conf.get("MOBILEFACENET", "VERIFICATION_THRESHOLD"))
-
+VERIFICATION_THRESHOLD = config.VERIFICATION_THRESHOLD
 # 检测人脸检测模型
-mtcnn_detector = load_mtcnn(conf)
+mtcnn_detector = load_mtcnn()
 # 加载人脸识别模型
-face_sess, inputs_placeholder, embeddings = load_mobilefacenet(conf)
-
+face_sess, inputs_placeholder, embeddings = load_mobilefacenet()
 # 加载已经注册的人脸
-faces_db = load_faces(conf, face_sess, inputs_placeholder, embeddings)
+faces_db = load_faces(face_sess, inputs_placeholder, embeddings)
 
 
-def infer(frame):
+# 人脸识别
+def recognition_face(frame):
     try:
         faces, landmarks = mtcnn_detector.detect(frame)
         if faces.shape[0] is not 0:
@@ -87,19 +83,22 @@ def infer(frame):
         return None, None, None, None, None, None
 
 
+# 识别人脸接口
 @app.route("/recognition", methods=['POST'])
 def recognition():
     start_time1 = time.time()
     upload_file = request.files['image']
     if upload_file:
         try:
-            img = cv2.imdecode(np.fromstring(upload_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+            img = cv2.imdecode(np.frombuffer(upload_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
         except:
             return str({"error": 2, "msg": "this file is not image"})
-        info_name, probs, info_bbox, info_landmarks = infer(img)
-        if info_name is None:
+        try:
+            info_name, probs, info_bbox, info_landmarks = recognition_face(img)
+            if info_name is None:
+                return str({"error": 3, "msg": "image not have face"})
+        except:
             return str({"error": 3, "msg": "image not have face"})
-        print('duration:[%.0fms]' % ((time.time() - start_time1) * 1000))
         # 封装识别结果
         data_faces = []
         for i in range(len(info_name)):
@@ -108,20 +107,21 @@ def recognition():
                  "bbox": list_to_json(np.around(info_bbox[i], decimals=2).tolist()),
                  "landmarks": list_to_json(np.around(info_landmarks[i], decimals=2).tolist())})
         data = str({"code": 0, "msg": "success", "data": data_faces}).replace("'", '"')
-        print(data)
+        print('duration:[%.0fms]' % ((time.time() - start_time1) * 1000), data)
         return data
     else:
         return str({"error": 1, "msg": "file is None"})
 
 
+# 注册人脸接口
 @app.route("/register", methods=['POST'])
 def register():
     global faces_db
     upload_file = request.files['image']
-    user_name = request.files['name']
+    user_name = request.values.get("name")
     if upload_file:
         try:
-            image = cv2.imdecode(np.fromstring(upload_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+            image = cv2.imdecode(np.frombuffer(upload_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
             faces, landmarks = mtcnn_detector.detect(image)
             if faces.shape[0] is not 0:
                 faces_sum = 0
@@ -134,14 +134,13 @@ def register():
                         faces_sum += 1
                 if faces_sum == 1:
                     nimg = face_preprocess.preprocess(image, bbox, points, image_size='112,112')
-                    cv2.imwrite('face_db/%s.png' % user_name, nimg)
-                    print("注册成功！")
+                    cv2.imencode('.png', nimg)[1].tofile('face_db/%s.png' % user_name)
                     # 更新人脸库
-                    faces_db = load_faces(conf, face_sess, inputs_placeholder, embeddings)
+                    faces_db = load_faces(face_sess, inputs_placeholder, embeddings)
                     return str({"code": 0, "msg": "success"})
             return str({"code": 3, "msg": "image not or much face"})
         except:
-            return str({"code": 2, "msg": "this file is not image"})
+            return str({"code": 2, "msg": "this file is not image or not face"})
     else:
         return str({"code": 1, "msg": "file is None"})
 
@@ -152,4 +151,4 @@ def home():
 
 
 if __name__ == '__main__':
-    app.run(host=conf.get("SERVER", "HOST"), port=conf.get("SERVER", "POST"))
+    app.run(host=config.HOST, port=config.POST)

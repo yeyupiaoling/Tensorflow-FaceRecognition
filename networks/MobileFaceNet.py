@@ -1,37 +1,3 @@
-# Copyright 2018 The AI boy xsr-ai. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-# http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# =============================================================================
-"""MobileFaceNets.
-
-MobileFaceNets, which use less than 1 million parameters and are specifically tailored for high-accuracy real-time
-face verification on mobile and embedded devices.
-
-here is MobileFaceNets architecture, reference from MobileNet_V2 (https://github.com/xsr-ai/MobileNetv2_TF).
-
-As described in https://arxiv.org/abs/1804.07573.
-
-  MobileFaceNets: Efficient CNNs for Accurate Real-time Face Verification on Mobile Devices
-
-  Sheng Chen, Yang Liu, Xiang Gao, Zhen Han
-
-"""
-
-# Tensorflow mandates these.
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from collections import namedtuple
 import functools
 

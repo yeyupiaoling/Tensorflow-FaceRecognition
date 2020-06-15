@@ -8,6 +8,7 @@ import os
 import sklearn
 from utils import face_preprocess
 import tensorflow as tf
+import config
 
 
 # 比较人脸相似度
@@ -21,10 +22,10 @@ def feature_compare(feature1, feature2, threshold):
 
 
 # 加载人脸检测模型
-def load_mtcnn(conf):
-    MODEL_PATH = conf.get("MTCNN", "MODEL_PATH")
-    MIN_FACE_SIZE = int(conf.get("MTCNN", "MIN_FACE_SIZE"))
-    STEPS_THRESHOLD = [float(i) for i in conf.get("MTCNN", "STEPS_THRESHOLD").split(",")]
+def load_mtcnn():
+    MODEL_PATH = config.MTCNN_MODEL_PATH
+    MIN_FACE_SIZE = int(config.MIN_FACE_SIZE)
+    STEPS_THRESHOLD = [float(i) for i in config.STEPS_THRESHOLD.split(",")]
 
     detectors = [None, None, None]
     prefix = [MODEL_PATH + "/PNet_landmark/PNet",
@@ -44,12 +45,12 @@ def load_mtcnn(conf):
 
 
 # 加载已经注册的人脸
-def load_faces(conf, sess, inputs_placeholder, embeddings):
-    FACE_DB_PATH = conf.get("MOBILEFACENET", "FACE_DB_PATH")
+def load_faces(sess, inputs_placeholder, embeddings):
+    FACE_DB_PATH = config.FACE_DB_PATH
     face_db = []
     for root, dirs, files in os.walk(FACE_DB_PATH):
         for file in files:
-            input_image = cv2.imread(os.path.join(root, file))
+            input_image = cv2.imdecode(np.fromfile(os.path.join(root, file), dtype=np.uint8), 1)
             try:
                 input_image = input_image - 127.5
                 input_image = input_image * 0.0078125
@@ -75,14 +76,14 @@ def load_faces(conf, sess, inputs_placeholder, embeddings):
 
 
 # 检测并裁剪人脸
-def add_faces(conf, mtcnn_detector):
-    face_db_path = conf.get("MOBILEFACENET", "FACE_DB_PATH")
+def add_faces(mtcnn_detector):
+    face_db_path = config.FACE_DB_PATH
     faces_name = os.listdir(face_db_path)
-    temp_face_path = conf.get("MOBILEFACENET", "TEMP_FACE_PATH")
+    temp_face_path = config.TEMP_FACE_PATH
     for root, dirs, files in os.walk(temp_face_path):
         for file in files:
             if file not in faces_name:
-                input_image = cv2.imread(os.path.join(root, file))
+                input_image = cv2.imdecode(np.fromfile(os.path.join(root, file), dtype=np.uint8), 1)
                 faces, landmarks = mtcnn_detector.detect(input_image)
                 bbox = faces[0, :4]
                 points = landmarks[0, :].reshape((5, 2))
@@ -91,8 +92,8 @@ def add_faces(conf, mtcnn_detector):
 
 
 # 加载人脸识别模型
-def load_mobilefacenet(conf):
-    MODEL_PATH = conf.get("MOBILEFACENET", "MODEL_PATH")
+def load_mobilefacenet():
+    MODEL_PATH = config.MOBILEFACENET_MODEL_PATH
     print('Model filename: %s' % MODEL_PATH)
     with tf.gfile.FastGFile(MODEL_PATH, 'rb') as f:
         graph_def = tf.GraphDef()

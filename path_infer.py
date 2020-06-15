@@ -1,29 +1,27 @@
-import configparser
+import config
 import cv2
 import numpy as np
 import sklearn
+from PIL import ImageFont, ImageDraw, Image
 from utils import face_preprocess
 from utils.utils import feature_compare, load_mtcnn, load_faces, load_mobilefacenet, add_faces
 
-
-conf = configparser.ConfigParser()
-conf.read("config/main.cfg")
 # 加载人脸检测模型
-VERIFICATION_THRESHOLD = float(conf.get("MOBILEFACENET", "VERIFICATION_THRESHOLD"))
+VERIFICATION_THRESHOLD = config.VERIFICATION_THRESHOLD
 
 # 检测人脸检测模型
-mtcnn_detector = load_mtcnn(conf)
+mtcnn_detector = load_mtcnn()
 # 加载人脸识别模型
-face_sess, inputs_placeholder, embeddings = load_mobilefacenet(conf)
+face_sess, inputs_placeholder, embeddings = load_mobilefacenet()
 # 添加人脸
-add_faces(conf, mtcnn_detector)
+add_faces(mtcnn_detector)
 # 加载已经注册的人脸
-faces_db = load_faces(conf, face_sess, inputs_placeholder, embeddings)
+faces_db = load_faces(face_sess, inputs_placeholder, embeddings)
 
 
 # 注册人脸
-def register_face(img_path, name):
-    image = cv2.imread(img_path)
+def face_register(img_path, name):
+    image = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
     faces, landmarks = mtcnn_detector.detect(image)
     if faces.shape[0] is not 0:
         faces_sum = 0
@@ -36,7 +34,7 @@ def register_face(img_path, name):
                 faces_sum += 1
         if faces_sum == 1:
             nimg = face_preprocess.preprocess(image, bbox, points, image_size='112,112')
-            cv2.imwrite('face_db/%s.png' % name, nimg)
+            cv2.imencode('.png', nimg)[1].tofile('face_db/%s.png' % name)
             print("注册成功！")
         else:
             print('注册图片有错，图片中有且只有一个人脸')
@@ -44,9 +42,9 @@ def register_face(img_path, name):
         print('注册图片有错，图片中有且只有一个人脸')
 
 
-def infer_face(img_path):
-    frame = cv2.imread(img_path)
-    faces, landmarks = mtcnn_detector.detect(frame)
+def face_recognition(img_path):
+    image = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), 1)
+    faces, landmarks = mtcnn_detector.detect(image)
     if faces.shape[0] is not 0:
         faces_sum = 0
         for i, face in enumerate(faces):
@@ -64,7 +62,7 @@ def infer_face(img_path):
                 if round(faces[i, 4], 6) > 0.95:
                     bbox = faces[i, 0:4]
                     points = landmarks[i, :].reshape((5, 2))
-                    nimg = face_preprocess.preprocess(frame, bbox, points, image_size='112,112')
+                    nimg = face_preprocess.preprocess(image, bbox, points, image_size='112,112')
                     nimg = nimg - 127.5
                     nimg = nimg * 0.0078125
                     input_images[i, :] = nimg
@@ -94,24 +92,29 @@ def infer_face(img_path):
                 x1, y1, x2, y2 = faces[k][0], faces[k][1], faces[k][2], faces[k][3]
                 x1 = max(int(x1), 0)
                 y1 = max(int(y1), 0)
-                x2 = min(int(x2), frame.shape[1])
-                y2 = min(int(y2), frame.shape[0])
+                x2 = min(int(x2), image.shape[1])
+                y2 = min(int(y2), image.shape[0])
                 prob = '%.2f' % probs[k]
                 label = "{}, {}".format(info_name[k], prob)
-                size = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
-                cv2.rectangle(frame, (x1, y1 - size[1]), (x1 + size[0], y1), (255, 0, 0), cv2.FILLED)
-                cv2.putText(frame, label, (x1, y1), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-    cv2.imshow('image', frame)
+                cv2img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                pilimg = Image.fromarray(cv2img)
+                draw = ImageDraw.Draw(pilimg)
+                font = ImageFont.truetype('font/simfang.ttf', 18, encoding="utf-8")
+                draw.text((x1, y1 - 18), label, (255, 0, 0), font=font)
+                image = cv2.cvtColor(np.array(pilimg), cv2.COLOR_RGB2BGR)
+                cv2.rectangle(image, (x1, y1), (x2, y2), (255, 0, 0), 2)
+    cv2.imshow('image', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
     i = int(input("请选择功能，1为注册人脸，2为识别人脸："))
-    image_path = input("请输入图片路径（不支持中文）：")
+    image_path = input("请输入图片路径：")
     if i == 1:
-        user_name = input("请输入注册名（不支持中文）：")
-        register_face(image_path, user_name)
+        user_name = input("请输入注册名：")
+        face_register(image_path, user_name)
     elif i == 2:
-        infer_face(image_path)
+        face_recognition(image_path)
     else:
         print("功能选择错误")
