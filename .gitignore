@@ -2,4 +2,6 @@
 *.pyc
 __pycache__/
 detection/__pycache__/
-face_db/
+face_db/*
+!face_db/张伟.png
+test.png

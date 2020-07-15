@@ -8,5 +8,5 @@ VERIFICATION_THRESHOLD = 0.6
 FACE_DB_PATH = './face_db/'
 TEMP_FACE_PATH = './temp/'
 # server
-HOST = '192.168.89.175'
+HOST = 'localhost'
 POST = 5000

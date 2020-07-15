@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>人脸识别</title>
+    <script src="https://libs.baidu.com/jquery/2.1.1/jquery.min.js"></script>
+</head>
+<body>
+<form action="/register" enctype="multipart/form-data" method="post">
+    注册人脸：<input type="file" required accept="image/*" name="image"><br>
+    注册名称：<input type="text" name="name"><br>
+
+    <input type="submit" value="上传">
+</form>
+
+<br/><br/><br/>
+<form action="/recognition" enctype="multipart/form-data" method="post">
+    预测人脸：<input type="file" required accept="image/*" name="image"><br>
+    <input type="submit" value="上传">
+</form>
+
+<br/><br/><br/>
+<video id="video" width="640" height="480" autoplay></video>
+<button id="snap">拍照</button>
+<br/><br/>
+<canvas id="canvas" width="640" height="480"></canvas>
+<button id="upload">上传</button>
+<script type="text/javascript">
+    var canvas = document.getElementById("canvas");
+    var context = canvas.getContext("2d");
+    var video = document.getElementById("video");
+    $(document).ready(function() {
+        videoObj = {
+            "video": true
+        };
+        var errBack = function(error) {
+            console.log("Video capture error: ", error.code);
+        };
+        if (navigator.getUserMedia) { // Standard
+            navigator.getUserMedia(videoObj, function(stream) {
+                video.srcObject = stream;
+                video.play();
+            }, errBack);
+        } else if (navigator.webkitGetUserMedia) { // WebKit-prefixed
+            navigator.webkitGetUserMedia(videoObj, function(stream) {
+                video.src = window.webkitURL.createObjectURL(stream);
+                video.play();
+            }, errBack);
+        } else if (navigator.mozGetUserMedia) { // Firefox-prefixed
+            navigator.mozGetUserMedia(videoObj, function(stream) {
+                video.src = window.URL.createObjectURL(stream);
+                video.play();
+            }, errBack);
+        };
+        $("#snap").on("click", function() {
+            context.drawImage(video, 0, 0, 640, 480);
+        });
+        $('#upload').on("click", function(){
+            canvas.toBlob(function (blob) {
+              // 图片ajax上传
+              var xhr = new XMLHttpRequest();
+              var fd = new FormData();
+              fd.append("image", blob);
+              fd.append("is_chrome_camera", "True");
+              xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    alert(xhr.responseText);
+                }
+              }
+              // 开始上传
+              xhr.open("POST", '/recognition', true);
+              xhr.send(fd);
+            });
+        });
+    });
+
+</script>
+</body>
+</html>
