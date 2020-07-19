@@ -6,7 +6,7 @@ from utils import face_preprocess
 from PIL import ImageFont, ImageDraw, Image
 from utils.utils import feature_compare, load_mtcnn, load_faces, load_mobilefacenet, add_faces
 
-# 加载人脸检测模型
+# 人脸识别阈值
 VERIFICATION_THRESHOLD = config.VERIFICATION_THRESHOLD
 
 # 检测人脸检测模型

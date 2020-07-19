@@ -12,7 +12,7 @@ app = Flask(__name__)
 # 允许跨越访问
 CORS(app)
 
-# 加载人脸检测模型
+# 人脸识别阈值
 VERIFICATION_THRESHOLD = config.VERIFICATION_THRESHOLD
 # 检测人脸检测模型
 mtcnn_detector = load_mtcnn()
