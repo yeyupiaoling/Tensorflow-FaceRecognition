@@ -135,6 +135,9 @@ loaded face: 迪丽热巴.png
 注册成功！
 ```
 
+识别效果图：
+![](https://s1.ax1x.com/2020/07/20/Uf5q5n.jpg)
+
 # 相机人脸识别
 在`camera_infer.py`实现使用相机的人脸识别，通过调用相机获取图像，进行人脸注册和人脸识别，在使用人脸注册或者人脸识别之前，同样先加载人脸检测模型MTCNN和MobileFaceNet，并将临时`temp`文件夹中的人脸经过MTCNN处理添加到人脸库中，最后把人脸库中的人脸使用MobileFaceNet预测得到特征值，并报特征值和对应的人脸名称存放在列表中。
 ```python
@@ -275,6 +278,10 @@ loaded face: 迪丽热巴.png
 注册成功！
 ```
 
+识别效果图：
+![](https://s1.ax1x.com/2020/07/20/Uf5q5n.jpg)
+
+
 # 通过服务接口识别
 程序在`server_main.py`中实现，通过使用Flask提供网络服务接口，如果要允许跨域访问需要设置`CORS(app)`，本程序虽然是默认开启跨域访问，但是为了可以在浏览器上调用摄像头，启动的host设置为`localhost`。另外还要加载MTCNN模型和MobileFaceNet模型，并报人脸库的图像加载到程序中。
 ```python
@@ -406,3 +413,11 @@ loaded face: 迪丽热巴.png
  * Debug mode: off
  * Running on http://localhost:5000/ (Press CTRL+C to quit)
 ```
+
+
+页面图：
+![](https://s1.ax1x.com/2020/07/20/UfoZYn.jpg)
+
+
+识别返回结果：
+![](https://s1.ax1x.com/2020/07/20/UfTruT.jpg)
