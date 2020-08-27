@@ -70,7 +70,9 @@ def face_recognition(img_path):
             # 进行人脸识别
             feed_dict = {inputs_placeholder: input_images}
             emb_arrays = face_sess.run(embeddings, feed_dict=feed_dict)
+            print(emb_arrays.shape)
             emb_arrays = sklearn.preprocessing.normalize(emb_arrays)
+            print(emb_arrays.shape)
             for i, embedding in enumerate(emb_arrays):
                 embedding = embedding.flatten()
                 temp_dict = {}

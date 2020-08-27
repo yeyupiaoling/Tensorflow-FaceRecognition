@@ -88,14 +88,9 @@ def recognition_face(frame):
 def recognition():
     start_time1 = time.time()
     upload_file = request.files['image']
-    is_chrome_camera = request.values.get("is_chrome_camera")
     if upload_file:
         try:
-            img = cv2.imdecode(np.frombuffer(upload_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
-            # 兼容浏览器摄像头拍照识别
-            if is_chrome_camera == "True":
-                cv2.imwrite('test.png', img)
-                img = cv2.imdecode(np.fromfile('test.png', dtype=np.uint8), 1)
+            img = cv2.imdecode(np.frombuffer(upload_file.read(), np.uint8), 1)
         except:
             return str({"error": 2, "msg": "this file is not image"})
         try:

@@ -61,7 +61,6 @@
               var xhr = new XMLHttpRequest();
               var fd = new FormData();
               fd.append("image", blob);
-              fd.append("is_chrome_camera", "True");
               xhr.onreadystatechange = function() {
                 if (xhr.readyState == 4 && xhr.status == 200) {
                     alert(xhr.responseText);
