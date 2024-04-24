@@ -1,0 +1,9 @@
+Flask==3.0.3
+Flask_Cors==4.0.0
+numpy==1.24.4
+opencv_python==4.9.0.80
+Pillow==10.3.0
+scikit_learn==1.4.1.post1
+tensorboard==2.10.1
+tensorflow_gpu==2.10.0
+tf_slim==1.1.0
