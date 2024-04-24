@@ -1,7 +1,10 @@
 # coding:utf-8
-import tensorflow as tf
-from tensorflow.contrib import slim
-from tensorflow.contrib.tensorboard.plugins import projector
+# import tensorflow as tf
+import tensorflow.compat.v1 as tf
+# from tensorflow.contrib import slim
+import tf_slim as slim
+# from tensorflow.contrib.tensorboard.plugins import projector
+from tensorboard.plugins import projector
 import numpy as np
 
 num_keep_radio = 0.7

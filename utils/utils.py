@@ -7,7 +7,8 @@ import cv2
 import os
 import sklearn
 from utils import face_preprocess
-import tensorflow as tf
+# import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import config
 
 
