@@ -1,8 +1,32 @@
-
 # 前言
 本教程是教程是介绍如何使用Tensorflow实现的MTCNN和MobileFaceNet实现的人脸识别，并不介绍如何训练模型。关于如何训练MTCNN和MobileFaceNet，请阅读这两篇教程 [MTCNN-Tensorflow](https://github.com/AITTSMD/MTCNN-Tensorflow) 和 [MobileFaceNet_TF](https://github.com/sirius-ai/MobileFaceNet_TF) ，这两个模型都是比较轻量的模型，所以就算这两个模型在CPU环境下也有比较好的预测速度，众所周知，笔者比较喜欢轻量级的模型，如何让我从准确率和预测速度上选择，我会更倾向于速度，因本人主要是研究深度学习在移动设备等嵌入式设备上的的部署。好了，下面就来介绍如何实现这两个模型实现三种人脸识别，使用路径进行人脸注册和人脸识别，使用摄像头实现人脸注册和人脸识别，通过HTTP实现人脸注册和人脸识别。
 
 **本教程源码：[https://github.com/yeyupiaoling/Tensorflow-FaceRecognition](https://github.com/yeyupiaoling/Tensorflow-FaceRecognition)**
+
+# 配置
+## 创建虚拟环境
+使用Anaconda创建虚拟环境：
+```
+conda create -n face_rg python = 3.10
+```
+## 配置环境
+激活刚刚配置好的环境
+```
+activate face_rg
+```
+从`requirements.txt` 下载需要的库
+```
+pip install -r requirements.txt
+```
+
+
+# 使用
+
+## 本地人脸图像识别
+直接使用命令
+```
+python camera_infer.py
+```
 
 # 本地人脸图像识别
 本地人脸图像识别就是要通过路径读取本地的图像进行人脸注册或者人脸识别，对应的代码为`path_infer.py`。首先要加载好人脸识别的两个模型，一个是人脸检测和关键点检测模型MTCNN和人脸识别模型MobileFaceNet，加载这两个模型已经封装在一个工具中了，方便加载。
