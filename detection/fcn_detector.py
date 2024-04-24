@@ -1,5 +1,6 @@
 
-import tensorflow as tf
+# import tensorflow as tf
+import tensorflow.compat.v1 as tf
 import sys
 sys.path.append("../")
 
